@@ -1,45 +1,48 @@
 ---
 layout: home
-title: MaiBot 文档中心
+title: MaiBot Documentation Center
 hero:
   name: MaiBot
-  text: 多模型、拟人化、可扩展的智能体
-  tagline: 多种模型协作，仿生的思考规划架构，模块化设计和内部扩展性带来拟人化的交互体验
+  text: Multi-model, Human-like, Extensible Intelligent Agent
+  tagline: Multiple model collaboration, biomimetic thinking architecture, modular design and internal extensibility bring human-like interaction experience
   image:
     src: /images/mai.png
     alt: MaiBot
   actions:
     - theme: brand
-      text: 快速开始
-      link: manual/deployment/
+      text: Features
+      link: /features
+    - theme: brand
+      text: User Guide
+      link: /manual/
     - theme: alt
-      text: 开发文档
+      text: Development Docs
       link: /develop/
 features:
   - icon: 🧠
-    title: 好多LLM
-    details: 基于多个LLM配合协作，带来自然语言理解与生成能力
+    title: Multiple LLMs
+    details: Based on multiple LLMs working together, providing natural language understanding and generation capabilities
   - icon: 💾
-    title: 能够记点东西
-    details: 能记住交流中发生的事，也能记住人类是怎么说话的
+    title: Memory Capabilities
+    details: Can remember events from conversations and how humans speak
   - icon: ❤️
-    title: 仿生的思考
-    details: 参考认知科学理论的模块化设计，并可以进行拓展
+    title: Biomimetic Thinking
+    details: Modular design referencing cognitive science theories, with extensibility
   - icon: 🔧
-    title: 灵活配置
-    details: 支持多种API服务，个性化设置轻松实现
+    title: Flexible Configuration
+    details: Supports multiple API services, easy to achieve personalized settings
   - icon: 🚢
-    title: 多种部署
-    details: 支持启动器、Docker、Linux、Windows等多种部署方式
+    title: Multiple Deployment Options
+    details: Supports launcher, Docker, Linux, Windows, and various deployment methods
   - icon: 🔄
-    title: 持续更新
-    details: 定期更新和改进，不断增强功能与性能
+    title: Continuous Updates
+    details: Regular updates and improvements, continuously enhancing functionality and performance
 ---
 
-## 获取更多支持
+## Get More Support
 
-- 访问[GitHub仓库](https://github.com/MaiM-with-u/MaiBot)提交问题或贡献代码
-- 加入用户交流群获取帮助
+- Visit [GitHub Repository](https://github.com/MaiM-with-u/MaiBot) to submit issues or contribute code
+- Join user discussion groups for help
 
 <style scoped>
 #star-canvas {
@@ -63,7 +66,7 @@ features:
 <script setup>
 import { onMounted, onUnmounted, nextTick } from 'vue'
 
-// 普通封面图片列表
+// Normal cover image list
 const normalImages = [
   '/title_img/mai.png',
   '/title_img/mai2.png',
@@ -72,7 +75,7 @@ const normalImages = [
   '/title_img/emoji3.png',
 ]
 
-// 隐藏款图片（出现概率是其他图片的1/10）
+// Hidden image (appears with 1/10 probability of other images)
 const hiddenImage = '/title_img/dis.png'
 
 let animationFrameId = null
@@ -81,17 +84,17 @@ let particles = []
 onMounted(async () => {
   await nextTick()
   
-  // 加权随机选择：dis.png 概率为其他图片的 1/5
-  // 创建一个加权数组：其他图片各出现5次，隐藏款出现1次
+  // Weighted random selection: dis.png probability is 1/5 of other images
+  // Create a weighted array: other images appear 5 times each, hidden image appears 1 time
   const weightedImages = [
-    ...normalImages.map(img => Array(5).fill(img)).flat(), // 每张普通图片出现5次
-    hiddenImage // 隐藏款出现1次
+    ...normalImages.map(img => Array(5).fill(img)).flat(), // Each normal image appears 5 times
+    hiddenImage // Hidden image appears 1 time
   ]
   
-  // 随机选择一张图片
+  // Randomly select an image
   const randomImage = weightedImages[Math.floor(Math.random() * weightedImages.length)]
   
-  // 尝试多种选择器来查找 hero 图片
+  // Try multiple selectors to find hero image
   const selectors = [
     '.VPHomeHero .VPImage img',
     '.VPHomeHero img',
@@ -105,26 +108,26 @@ onMounted(async () => {
     if (heroImage) break
   }
   
-  // 设置图片的函数
+  // Function to set image
   const setImage = (imgElement, imageSrc) => {
     imgElement.src = imageSrc
     imgElement.alt = 'MaiBot'
-    // 如果是 emoji4.png，缩放到 1.5 倍
+    // If it's emoji4.png, scale to 1.5x
     if (imageSrc.includes('emoji4.png')) {
       imgElement.style.transform = 'scale(1.5)'
       imgElement.style.transformOrigin = 'center'
     } else {
-      // 重置其他图片的缩放
+      // Reset scaling for other images
       imgElement.style.transform = ''
       imgElement.style.transformOrigin = ''
     }
   }
   
-  // 如果找到了图片元素，替换它
+  // If image element is found, replace it
   if (heroImage) {
     setImage(heroImage, randomImage)
   } else {
-    // 如果没找到，延迟再试一次（等待 VitePress 渲染完成）
+    // If not found, try again after delay (waiting for VitePress rendering)
     setTimeout(() => {
       for (const selector of selectors) {
         heroImage = document.querySelector(selector)
@@ -136,7 +139,7 @@ onMounted(async () => {
     }, 100)
   }
   
-  // 初始化星星特效
+  // Initialize star effect
   initStarEffect()
 })
 
@@ -317,7 +320,7 @@ function initStarEffect() {
     
     frame++
     
-    // 获取图标位置
+    // Get icon position
     const heroImage = document.querySelector('.VPHomeHero .VPImage img') || 
                      document.querySelector('.VPHomeHero img')
     
