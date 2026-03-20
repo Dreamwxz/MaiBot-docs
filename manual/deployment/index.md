@@ -1,61 +1,398 @@
-# 📦 MaiBot 部署指南
+# 📦 MaiBot 安装方式
 
-## 你必须要准备好的
+<div class="manual-hero">
+  <div class="hero-content">
+    <h2 class="hero-title">安装部署</h2>
+    <p class="hero-subtitle">选择适合你的安装方式，快速部署 MaiBot</p>
+    <div class="hero-decoration"></div>
+  </div>
+</div>
 
-1. 电脑一台：Windows/Linux/Mac 任意
-2. 一个QQ小号（请自行了解QQ机器人风险）（你也可以使用微信适配器或者桌宠适配器，但可能更新不及时）
-3. AI大模型的可以使用的API Key
+<div class="manual-nav-grid">
 
-## 一键包安装
+<div class="nav-card">
 
-你可以在[麦麦QQ交流群](/manual/other/qq_group)群文件获取到最新版本的一键安装包。
+<div class="card-header">
+  <span class="card-icon">📦</span>
+  <div class="card-title-group">
+    <h3 class="card-title">一键包安装</h3>
+    <p class="card-desc">Windows 用户快速上手</p>
+  </div>
+</div>
 
-## Windows 部署
+<div class="card-links">
+  <a href="https://github.com/DrSmoothl/MaiBotOneKey" class="card-link card-link-main" target="_blank">
+    <span class="link-arrow">→</span>
+    <span>GitHub 下载</span>
+  </a>
+  <a href="/manual/other/group" class="card-link">
+    <span class="link-arrow">→</span>
+    <span>社群获取最新版本</span>
+  </a>
+</div>
 
-Windows 部署适用于 Windows 10 或 Windows 11 系统，适合个人用户在本地电脑上运行 MaiBot。这种方式配置相对简单，适合初学者使用。
-- [Windows 部署指南](mmc_deploy_windows)
+</div>
 
-## Linux 部署
+<div class="nav-card">
 
-Linux 部署适用于各种 Linux 发行版，适合在服务器上部署 MaiBot。性能和稳定性都比较好。
-- [Linux 部署指南](mmc_deploy_linux)
+<div class="card-header">
+  <span class="card-icon">📝</span>
+  <div class="card-title-group">
+    <h3 class="card-title">安装指南</h3>
+    <p class="card-desc">适合所有主流操作系统</p>
+  </div>
+</div>
 
-## macOS 部署
+<div class="card-links">
+  <a href="installation" class="card-link card-link-main">
+    <span class="link-arrow">→</span>
+    <span>标准安装指南</span>
+  </a>
+</div>
 
-macOS 部署适用于 macOS 系统，适合 Mac 用户在本地电脑上运行 MaiBot。针对 macOS 系统进行了优化，支持 M1/M2 芯片。
-- [macOS 部署指南](mmc_deploy_macos)
+</div>
 
-## Docker 部署
+<div class="nav-card">
 
-Docker 部署使用容器化技术，简化了环境配置过程，确保在不同环境中的一致性。适合快速部署和测试。
-- [Docker 部署指南](mmc_deploy_docker)
+<div class="card-header">
+  <span class="card-icon">🐳</span>
+  <div class="card-title-group">
+    <h3 class="card-title">Docker 部署</h3>
+    <p class="card-desc">容器化快速部署方案</p>
+  </div>
+</div>
 
-## Android 部署
+<div class="card-links">
+  <a href="mmc_deploy_docker" class="card-link card-link-main">
+    <span class="link-arrow">→</span>
+    <span>Docker 部署指南</span>
+  </a>
+</div>
 
-Android 部署允许在 Android 设备上通过 ZeroTermux 环境运行 MaiBot，适合移动端用户。充分利用移动设备的便携性。
-- [Android 部署指南](mmc_deploy_android)
+</div>
 
-## Kubernetes 部署
+</div>
 
-Kubernetes 部署使用 Helm Chart 在 Kubernetes 集群中部署 MaiBot。
-- [Kubernetes 部署指南](mmc_deploy_kubernetes)
+## 社区部署方案
 
-## 1Panel 部署（社区）
+<div class="manual-nav-grid">
 
-1Panel 部署通过 1Panel 面板快速部署 MaiBot，适合使用 1Panel 管理服务器的用户。  
-作者：梦归云帆
-- [1Panel 部署指南](community/1panel)
+<div class="nav-card">
 
-## Linux 一键脚本部署（社区）
+<div class="card-header">
+  <span class="card-icon">📱</span>
+  <div class="card-title-group">
+    <h3 class="card-title">Android 部署</h3>
+    <p class="card-desc">通过 ZeroTermux 在移动端运行</p>
+  </div>
+</div>
 
-Linux 一键脚本部署使用自动化脚本快速在 Linux 系统上部署 MaiBot，简化部署流程。  
-作者：Astriora
-- [Linux 一键脚本部署指南](community/linux_one_key)
+<div class="card-links">
+  <a href="community/mmc_deploy_android" class="card-link card-link-main">
+    <span class="link-arrow">→</span>
+    <span>Android 部署指南</span>
+  </a>
+</div>
 
-## 故障排除
+</div>
 
-如果你在部署过程中遇到问题，可以：
+<div class="nav-card">
 
-1. 参考 [常见问题](/manual/faq/) 中的常见问题
-2. 查看项目的 GitHub Issues
-3. 加入[麦麦QQ交流群](/manual/other/qq_group)获取帮助
+<div class="card-header">
+  <span class="card-icon">☸️</span>
+  <div class="card-title-group">
+    <h3 class="card-title">Kubernetes 部署</h3>
+    <p class="card-desc">使用 Helm Chart 在 K8s 集群部署</p>
+  </div>
+</div>
+
+<div class="card-links">
+  <a href="community/mmc_deploy_kubernetes" class="card-link card-link-main">
+    <span class="link-arrow">→</span>
+    <span>Kubernetes 部署指南</span>
+  </a>
+</div>
+
+</div>
+
+<div class="nav-card">
+
+<div class="card-header">
+  <span class="card-icon">🖥️</span>
+  <div class="card-title-group">
+    <h3 class="card-title">1Panel 部署</h3>
+    <p class="card-desc">通过 1Panel 面板快速部署</p>
+  </div>
+</div>
+
+<div class="card-links">
+  <a href="community/1panel" class="card-link card-link-main">
+    <span class="link-arrow">→</span>
+    <span>1Panel 部署指南</span>
+  </a>
+</div>
+
+</div>
+
+<div class="nav-card">
+
+<div class="card-header">
+  <span class="card-icon">🐧</span>
+  <div class="card-title-group">
+    <h3 class="card-title">Linux 一键脚本</h3>
+    <p class="card-desc">自动化脚本快速部署</p>
+  </div>
+</div>
+
+<div class="card-links">
+  <a href="community/linux_one_key" class="card-link card-link-main">
+    <span class="link-arrow">→</span>
+    <span>Linux 一键脚本部署指南</span>
+  </a>
+</div>
+
+</div>
+
+</div>
+
+## 获取帮助
+
+<div class="help-container">
+
+<div class="help-card">
+  <div class="help-icon">❓</div>
+  <h4>常见问题</h4>
+  <p>查阅 <a href="/manual/faq/">FAQ</a> 获取常见问题的解决方案</p>
+</div>
+
+<div class="help-card">
+  <div class="help-icon">💬</div>
+  <h4>加入社群</h4>
+  <p>加入<a href="/manual/other/group">麦麦社群</a>获取实时帮助</p>
+</div>
+
+<div class="help-card">
+  <div class="help-icon">🐛</div>
+  <h4>提交 Issue</h4>
+  <p>在 GitHub 上提交问题反馈</p>
+</div>
+
+</div>
+
+<style scoped>
+/* ===== Hero Section ===== */
+.manual-hero {
+  position: relative;
+  padding: 2.5rem 2rem;
+  margin-bottom: 2.5rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.08) 0%, rgba(50, 205, 50, 0.08) 100%);
+  border: 1px solid rgba(255, 140, 0, 0.15);
+  overflow: hidden;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(120deg, #ff8c00 30%, #32cd32);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--vp-c-text-2);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+.hero-decoration {
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 140, 0, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ===== Navigation Grid ===== */
+.manual-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.nav-card {
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-card:hover {
+  border-color: rgba(255, 140, 0, 0.3);
+  box-shadow: 0 8px 30px rgba(255, 140, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.card-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.card-title-group {
+  flex: 1;
+}
+
+.card-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.card-desc {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--vp-c-text-3);
+}
+
+.card-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 8px;
+  color: var(--vp-c-text-2);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  background: rgba(255, 140, 0, 0.03);
+}
+
+.card-link:hover {
+  background: rgba(255, 140, 0, 0.1);
+  color: #ff8c00;
+  padding-left: 1.125rem;
+}
+
+.link-arrow {
+  color: #ff8c00;
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.card-link:hover .link-arrow {
+  transform: translateX(3px);
+}
+
+.card-link-main {
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.08) 0%, rgba(50, 205, 50, 0.05) 100%);
+  font-weight: 500;
+  border-left: 3px solid #ff8c00;
+}
+
+.card-link-main:hover {
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.15) 0%, rgba(50, 205, 50, 0.1) 100%);
+}
+
+/* ===== Help Section ===== */
+.help-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.help-card {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.help-card:hover {
+  border-color: rgba(255, 140, 0, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.1);
+}
+
+.help-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.help-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.help-card p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--vp-c-text-3);
+  line-height: 1.5;
+}
+
+.help-card a {
+  color: #ff8c00;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.help-card a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 640px) {
+  .manual-hero {
+    padding: 1.75rem 1.25rem;
+  }
+  
+  .hero-title {
+    font-size: 1.4rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .manual-nav-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .help-container {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

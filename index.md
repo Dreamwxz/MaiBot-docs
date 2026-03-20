@@ -10,11 +10,8 @@ hero:
     alt: MaiBot
   actions:
     - theme: brand
-      text: 功能介绍
-      link: /features
-    - theme: brand
-      text: 用户指南
-      link: /manual/
+      text: 快速开始
+      link: manual/deployment/
     - theme: alt
       text: 开发文档
       link: /develop/
