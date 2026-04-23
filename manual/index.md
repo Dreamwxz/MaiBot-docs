@@ -14,15 +14,12 @@ title: 用户手册
 
 1. [部署概览](/manual/deployment/) - 了解部署方式和前提条件
 2. [安装指南](/manual/deployment/installation) - 下载并安装 MaiBot
-3. [NapCat 适配器](/manual/deployment/napcat) - 连接 QQ
+3. [NapCat 适配器](/manual/adapters/napcat) - 连接 QQ
 4. [配置概览](/manual/configuration/) - 了解配置文件结构
 
 ### ⚙️ 配置详解
 
-- [基本配置](/manual/configuration/bot-config) - 平台、昵称、别名等基础设置
-- [人格配置](/manual/configuration/personality-config) - 定义 AI 的人格特质和表达风格
-- [聊天配置](/manual/configuration/chat-config) - 控制发言频率、上下文长度、群聊/私聊行为
-- [记忆配置](/manual/configuration/memory-config) - 长期记忆和自动记忆写回设置
+- [Bot 配置](/manual/configuration/bot-config) - 平台、昵称、人格、聊天、记忆等基础设置
 - [模型配置](/manual/configuration/model-config) - LLM 模型提供商和多模型回退
 
 ### 🧠 功能详解
