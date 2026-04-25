@@ -43,3 +43,4 @@ title: 用户手册
 
 - [适配器概览](/manual/adapters/) - 了解平台适配器架构
 - [NapCat](/manual/adapters/napcat) - QQ 协议适配
+- [GoCQ](/manual/adapters/gocq) - GoCQ 协议适配
