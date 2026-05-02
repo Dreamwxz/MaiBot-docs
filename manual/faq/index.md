@@ -58,9 +58,25 @@ python --version
 ```
 
 3️⃣ **端口被占用**
+
+启动报错示例：
 ```
-# 改端口就行
-# WebUI 默认 8001，可以改成 8002、8003 等
+WebUI 服务器 启动失败: 端口 8001 已被占用 (host=127.0.0.1)
+```
+
+**方法一：改端口** — 编辑 `config/bot_config.toml`：
+- WebUI 端口：`[webui]` → `port = 8002`
+- WebSocket 端口：`[maim_message]` → `ws_server_port = 8081`
+
+**方法二：关进程**：
+```bash
+# Windows
+netstat -ano | findstr :8001
+taskkill /PID <PID> /F
+
+# Linux/macOS
+lsof -i :8001
+kill -9 <PID>
 ```
 
 ### 机器人不回复消息？

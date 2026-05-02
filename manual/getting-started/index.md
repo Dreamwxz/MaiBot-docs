@@ -103,21 +103,7 @@ MaiBot 已配置清华镜像源，`uv sync` 会自动使用，无需手动设置
 uv run python bot.py
 ```
 
-**首次启动时，终端会显示用户协议（EULA）和隐私协议，输入 `同意` 并回车以继续。**
-
-::: warning ⚠️ 注意
-如果第一次启动提示配置文件不存在（`FileNotFoundError: config/bot_config.toml`），说明自动生成配置未触发。可以先手动创建配置目录和最小配置文件：
-
-```bash
-mkdir -p config
-echo -e '[inner]\nversion = "0.0.1"' > config/bot_config.toml
-echo -e '[inner]\nversion = "0.0.1"' > config/model_config.toml
-```
-
-然后重新运行 `uv run python bot.py`，程序会自动检测旧版本并升级到完整配置。
-:::
-
-之后系统检测到配置文件不存在，自动生成默认配置到 `config/` 目录，然后退出——**这是正常行为**。
+**首次启动时，终端会显示用户协议（EULA）和隐私协议，输入 `同意` 并回车以继续。** 之后系统会自动生成默认配置到 `config/` 目录，然后退出——**这是正常行为**。
 
 ::: tip 💡 服务器/无头环境
 如果在没有交互终端的服务器上部署，无法输入"同意"，可以使用环境变量跳过协议确认：
@@ -220,7 +206,45 @@ uv run python bot.py
 
 - **API 密钥未填写** — `model_config.toml` 中的 `api_key` 还是 `your-api-key`
 - **配置格式错误** — TOML 文件语法不正确
-- **端口被占用** — 默认 8001 端口被其他程序占用
+
+### 端口被占用？
+
+启动时如果报错类似以下内容：
+
+```
+WebUI 服务器 启动失败: 端口 8001 已被占用 (host=127.0.0.1)
+```
+
+说明默认端口被其他程序占用了。
+
+**解决方法一：改端口**
+
+编辑 `config/bot_config.toml`，在 `[webui]` 段落中修改端口：
+
+```toml
+[webui]
+port = 8002   # 改成其他未被占用的端口，如 8002、8003
+```
+
+保存后重新启动，WebUI 访问地址也会变成 `http://127.0.0.1:8002`。
+
+> 💡 如果 `maim_message` 的 WebSocket 端口（默认 8080）也被占用，同样在 `[maim_message]` 段落中修改 `ws_server_port`。
+
+**解决方法二：关闭占用端口的进程**
+
+```bash
+# Windows（CMD）
+netstat -ano | findstr :8001
+# 记下最后一列的 PID，然后用任务管理器或命令关闭
+taskkill /PID <PID> /F
+
+# Linux/macOS
+lsof -i :8001
+# 记下 PID，然后
+kill -9 <PID>
+```
+
+关闭后重启 MaiBot 即可使用原来的端口。
 
 ### 机器人不回复？
 

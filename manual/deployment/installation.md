@@ -73,25 +73,6 @@ uv run python bot.py
 
 ## 常见问题
 
-### 首次启动提示配置文件不存在？
-
-某些版本在首次启动时可能不会自动生成配置文件，会报错：
-
-```
-FileNotFoundError: [Errno 2] No such file or directory: 'config/bot_config.toml'
-```
-
-**解决方法**：手动创建 `config/` 目录和一个最小配置文件，然后重新启动，程序会自动检测旧版本并升级到完整配置。
-
-```bash
-mkdir -p config
-echo -e '[inner]\nversion = "0.0.1"' > config/bot_config.toml
-echo -e '[inner]\nversion = "0.0.1"' > config/model_config.toml
-uv run python bot.py
-```
-
-程序会提示「配置文件已经更新」，然后退出。此时再启动就能正常加载配置了。
-
 ### 启动后提示"模型列表不能为空"？
 
 `model_config.toml` 中必须至少包含一个模型配置。如果自动升级失败，需要手动创建模型配置文件，包括：

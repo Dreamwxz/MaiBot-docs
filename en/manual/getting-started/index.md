@@ -108,17 +108,7 @@ uv run python bot.py
 
 **On the first launch, you'll be prompted to accept the EULA and Privacy Policy. Type `同意` (or `confirmed`) and press Enter.** The system will auto-generate default configs in `config/`, then exit — **this is normal behavior**.
 
-::: warning ⚠️ Note
-If the first startup shows `FileNotFoundError: config/bot_config.toml`, auto-generation didn't trigger. You can manually create the config directory and minimal config files:
 
-```bash
-mkdir -p config
-echo -e '[inner]\nversion = "0.0.1"' > config/bot_config.toml
-echo -e '[inner]\nversion = "0.0.1"' > config/model_config.toml
-```
-
-Then run `uv run python bot.py` again — it will auto-detect the old version and upgrade to the full config.
-:::
 
 ::: tip 💡 Server / Headless Environments
 If deploying on a server without an interactive terminal and you can't type "agree", use environment variables to skip the prompt:
@@ -223,7 +213,45 @@ Common causes:
 
 - **API key not set** — `api_key` in `model_config.toml` still says `your-api-key`
 - **Config format error** — invalid TOML syntax
-- **Port conflict** — port 8001 is already in use
+
+### Port conflict?
+
+If you see an error like this on startup:
+
+```
+WebUI server failed to start: port 8001 is already in use (host=127.0.0.1)
+```
+
+The default port is occupied by another program.
+
+**Solution 1: Change the port**
+
+Edit `config/bot_config.toml`, modify the port in the `[webui]` section:
+
+```toml
+[webui]
+port = 8002   # Change to an unused port like 8002, 8003
+```
+
+Restart and the WebUI will be available at `http://127.0.0.1:8002`.
+
+> 💡 If the `maim_message` WebSocket port (default 8080) is also taken, change `ws_server_port` in the `[maim_message]` section as well.
+
+**Solution 2: Kill the process using the port**
+
+```bash
+# Windows (CMD)
+netstat -ano | findstr :8001
+# Note the PID in the last column, then:
+taskkill /PID <PID> /F
+
+# Linux/macOS
+lsof -i :8001
+# Note the PID, then:
+kill -9 <PID>
+```
+
+Restart MaiBot after freeing the port.
 
 ### Bot not responding?
 

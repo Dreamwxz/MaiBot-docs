@@ -90,24 +90,7 @@ First startup will ask you to agree to the user agreement, it's simple:
 
 ## 🔍 Common Problems
 
-### First startup says config file not found?
 
-Some versions may not auto-generate config files on first startup, showing:
-
-```
-FileNotFoundError: [Errno 2] No such file or directory: 'config/bot_config.toml'
-```
-
-**Solution**: Manually create the `config/` directory and a minimal config file, then restart. The program will detect the old version and upgrade to the full config.
-
-```bash
-mkdir -p config
-echo -e '[inner]\nversion = "0.0.1"' > config/bot_config.toml
-echo -e '[inner]\nversion = "0.0.1"' > config/model_config.toml
-uv run python bot.py
-```
-
-The program will show "config file updated" and exit. Start again to load properly.
 
 ### "Model list cannot be empty" error on startup?
 
