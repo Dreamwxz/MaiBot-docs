@@ -39,6 +39,43 @@ titleTemplate: :title · 模型高级参数
 | `max_retry` | 失败重试次数 | `2` 次 |
 | `retry_interval` | 重试间隔 | `10` 秒 |
 
+#### 内部转换机制
+
+`extra_params` 是 MaiBot 内部配置字段，**不会以原样整体发送给模型服务商**。实际请求前，客户端会将它转换为对应 SDK 支持的附加参数。
+
+OpenAI 兼容客户端（`client_type = "openai"`）的拆分规则：
+
+| 写法 | 实际用途 |
+|------|----------|
+| `headers` | 作为请求头传入 |
+| `query` | 作为 URL 查询参数传入 |
+| `body` | 合并到请求体 |
+| 其他普通键 | 作为请求体额外字段传入 |
+
+例如：
+
+```toml
+extra_params = {
+  headers = {"X-Trace-Id" = "test-001"},
+  query = {version = "2024-01-01"},
+  body = {metadata = {source = "maibot"}},
+  enable_thinking = "false"
+}
+```
+
+会被转换为近似下面的请求附加参数：
+
+```python
+extra_headers = {"X-Trace-Id": "test-001"}
+extra_query = {"version": "2024-01-01"}
+extra_body = {
+    "metadata": {"source": "maibot"},
+    "enable_thinking": "false",
+}
+```
+
+常见的 `extra_params = {enable_thinking = "false"}` 会把 `enable_thinking` 作为请求体字段传给服务商，而不是发送嵌套的 `{"extra_params": {"enable_thinking": "false"}}`。
+
 ## 模型高级参数
 
 ### 参数覆盖
@@ -54,6 +91,24 @@ titleTemplate: :title · 模型高级参数
 |-----------|----------|----------|
 | `force_stream_mode` | 强制流式输出 | `false`（默认），不支持非流式时设为`true` |
 | `extra_params` | 额外参数 | `{}`（默认），传递自定义API参数的键值对字典，详见下方各场景 |
+
+#### 优先级说明
+
+`temperature` 和 `max_tokens` 可以写在 `extra_params` 中作为模型级默认值，但更推荐使用模型配置里的同名独立字段：
+
+```toml
+temperature = 0.7
+max_tokens = 4096
+```
+
+这样配置意图更清楚，也能避免和服务商请求体中的同名字段混淆。
+
+当多处存在同名参数时，生效优先级为：
+
+1. 调用方本次请求显式传入的值
+2. 当前模型配置里的独立字段（如 `temperature`、`max_tokens`）
+3. 当前模型 `extra_params` 中的同名字段
+4. 当前任务配置中的默认值
 
 ---
 
@@ -75,12 +130,6 @@ extra_params = {enable_thinking = true}   # 开启思考模式
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | `enable_thinking` | `bool` | `true` 开启思考，`false` 关闭 |
-
-### 阿里百炼 (Qwen)
-
-Qwen 3.6 及以上模型默认开启思考模式，无需额外配置。
-
-> 💡 旧版 Qwen 3.5 系列部分模型可通过 `enable_thinking` 控制，但 Qwen 3.6+ 始终开启推理，质量更好。
 
 ## 调整推理深度
 
@@ -130,6 +179,22 @@ extra_params = {thinking_config = {thinking_budget = 4096}}
 ```
 
 > ⚠️ Google API 在国内无法直接访问，需要代理。
+
+### Gemini 额外参数字段
+
+当 `client_type = "google"` 时，`extra_params` 不按 OpenAI 的 `headers/query/body` 规则处理，而是由 Gemini 客户端按自身支持的字段筛选和映射：
+
+- 生成内容请求：映射到 `GenerateContentConfig` 支持的字段
+- 嵌入请求：映射到 `EmbedContentConfig` 支持的字段
+
+| 参数 | 用途 |
+|------|------|
+| `thinking_budget` | 思考预算（token 数） |
+| `include_thoughts` | 是否在响应中包含思考过程 |
+| `enable_google_search` | 启用 Google 搜索能力 |
+| `task_type` | 嵌入任务类型 |
+| `output_dimensionality` | 嵌入输出维度 |
+| `audio_mime_type` | 音频请求的 MIME 类型 |
 
 ## 自定义 HTTP 请求
 

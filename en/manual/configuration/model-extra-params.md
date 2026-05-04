@@ -39,6 +39,43 @@ Each model in `model_config.toml` can set the `extra_params` field, allowing you
 | `max_retry` | Max retries | `2` times |
 | `retry_interval` | Retry interval | `10` seconds |
 
+#### Internal Translation Mechanism
+
+`extra_params` is an internal MaiBot configuration field. **It is not sent as-is to the model provider**. Before the request is sent, the client converts it into the extra arguments supported by the corresponding SDK.
+
+The OpenAI-compatible client (`client_type = "openai"`) splits `extra_params` using these rules:
+
+| Syntax | Actual Use |
+|--------|-----------|
+| `headers` | Sent as request headers |
+| `query` | Sent as URL query parameters |
+| `body` | Merged into the request body |
+| Other plain keys | Sent as extra request body fields |
+
+For example:
+
+```toml
+extra_params = {
+  headers = {"X-Trace-Id" = "test-001"},
+  query = {version = "2024-01-01"},
+  body = {metadata = {source = "maibot"}},
+  enable_thinking = "false"
+}
+```
+
+This is converted to request extras similar to:
+
+```python
+extra_headers = {"X-Trace-Id": "test-001"}
+extra_query = {"version": "2024-01-01"}
+extra_body = {
+    "metadata": {"source": "maibot"},
+    "enable_thinking": "false",
+}
+```
+
+A common configuration like `extra_params = {enable_thinking = "false"}` sends `enable_thinking` as a request body field to the provider, not as a nested `{"extra_params": {"enable_thinking": "false"}}`.
+
 ## Model Advanced Parameters
 
 ### Parameter Overrides
@@ -54,6 +91,24 @@ Each model in `model_config.toml` can set the `extra_params` field, allowing you
 |-----------|----------|----------|
 | `force_stream_mode` | Force streaming | `false` (default), set `true` if non-streaming unsupported |
 | `extra_params` | Extra parameters | `{}` (default), custom API params, see scenarios below |
+
+#### Priority Rules
+
+`temperature` and `max_tokens` can be written in `extra_params` as model-level defaults, but the dedicated model fields are recommended:
+
+```toml
+temperature = 0.7
+max_tokens = 4096
+```
+
+This keeps the configuration clearer and avoids confusion with provider-specific request body fields that may use the same names.
+
+When the same parameter exists in multiple places, the priority order is:
+
+1. Values explicitly passed by the current request
+2. Dedicated fields in the current model config, such as `temperature` and `max_tokens`
+3. Same-name fields in the current model's `extra_params`
+4. Defaults from the current task config
 
 ---
 
@@ -75,12 +130,6 @@ extra_params = {enable_thinking = true}   # Enable thinking mode
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `enable_thinking` | `bool` | `true` to enable thinking, `false` to disable |
-
-### Alibaba Bailian (Qwen)
-
-Qwen 3.6 and above have thinking mode enabled by default — no extra configuration needed.
-
-> 💡 Older Qwen 3.5 series models may support `enable_thinking` toggle, but Qwen 3.6+ always reasons, yielding better quality.
 
 ## Adjusting Reasoning Depth
 
@@ -130,6 +179,22 @@ extra_params = {thinking_config = {thinking_budget = 4096}}
 ```
 
 > ⚠️ Google API is not directly accessible in China. You'll need a proxy.
+
+### Gemini Extra Parameter Fields
+
+When `client_type = "google"`, `extra_params` does not follow the OpenAI-compatible `headers/query/body` splitting rules. The Gemini client filters and maps fields according to what it supports:
+
+- Content generation: mapped to supported `GenerateContentConfig` fields
+- Embeddings: mapped to supported `EmbedContentConfig` fields
+
+| Parameter | Purpose |
+|-----------|---------|
+| `thinking_budget` | Thinking budget (token count) |
+| `include_thoughts` | Whether to include thinking process in responses |
+| `enable_google_search` | Enable Google search capability |
+| `task_type` | Embedding task type |
+| `output_dimensionality` | Embedding output dimensionality |
+| `audio_mime_type` | MIME type for audio requests |
 
 ## Custom HTTP Requests
 
