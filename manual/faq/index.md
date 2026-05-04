@@ -148,6 +148,26 @@ enabled = true
 3. **检查网络** - 网络慢会影响速度
 4. **关闭不必要功能** - 插件太多会拖慢速度
 
+### NapCat 已连接，但群聊收不到消息？
+**优先检查 NapCat 适配器的群聊名单过滤。**
+
+NapCat 适配器默认启用聊天名单过滤，群聊默认是白名单模式。群号不在 `group_list` 中时，群消息会被适配器直接丢弃。
+
+**处理方法**：
+1. 打开 `plugins/MaiBot-Napcat-Adapter/config.toml`
+2. Docker 部署则打开 `./data/MaiMBot/plugins/MaiBot-Napcat-Adapter/config.toml`
+3. 在 `[chat]` 中把目标群号加入 `group_list`
+4. 建议临时打开 `show_dropped_chat_list_messages = true`，方便在日志里看到被过滤的消息
+5. 保存后重启 MaiBot
+
+```toml
+[chat]
+enable_chat_list_filter = true
+show_dropped_chat_list_messages = true
+group_list_type = "whitelist"
+group_list = ["你的QQ群号"]
+```
+
 ### 内存占用太高？
 **节省内存**：
 - 📉 **减少记忆容量** - 少记一些东西

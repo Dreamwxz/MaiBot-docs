@@ -106,6 +106,25 @@ token = ""            # NapCat 访问令牌（有则填写）
 
 > 💡 **验证是否启用**：启动 MaiBot 后，查看日志中是否出现 `插件 maibot-team.napcat-adapter ... 激活`，如果看到 `已在配置中禁用，跳过激活` 则说明未启用。
 
+#### 群聊白名单
+
+NapCat 适配器默认启用聊天名单过滤，群聊默认是白名单模式。没有写进 `group_list` 的群消息会被直接丢弃；如果你发现 NapCat 已经连接成功，但群里 @ 机器人没有反应，优先检查这里。
+
+```toml
+[chat]
+enable_chat_list_filter = true
+show_dropped_chat_list_messages = true
+group_list_type = "whitelist"
+group_list = ["你的QQ群号"]
+```
+
+测试阶段也可以临时关闭名单过滤：
+
+```toml
+[chat]
+enable_chat_list_filter = false
+```
+
 ## 独立模式使用指南 🔧
 
 ::: warning 旧版方法
