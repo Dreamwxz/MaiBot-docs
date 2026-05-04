@@ -148,6 +148,101 @@ price_in = 0.1
 price_out = 0.2
 ```
 
+### 额外参数 `extra_params`
+
+`extra_params` 是模型级额外参数，用来给某个模型附加服务商特有的 API 参数。它配置在单个 `[[models]]` 下，只对当前模型生效。
+
+```toml
+[[models]]
+name = "deepseek-v4-pro-nonthink"
+model_identifier = "deepseek-v4-pro"
+api_provider = "aliyun"
+extra_params = {enable_thinking = "false"}
+```
+
+这里的 `extra_params` 是 MaiBot 内部配置字段，**不会以 `extra_params` 这个键整体发送给模型服务商**。实际请求前，客户端会把它转换成对应 SDK 支持的附加参数。
+
+#### OpenAI 兼容客户端
+
+当 `api_provider.client_type = "openai"`，或使用默认 OpenAI 兼容客户端时，`extra_params` 会按下面规则拆分：
+
+| 写法 | 实际用途 |
+|------|----------|
+| `headers` | 作为请求头传入 |
+| `query` | 作为 URL 查询参数传入 |
+| `body` | 合并到请求体 |
+| 其他普通键 | 作为请求体额外字段传入 |
+
+例如：
+
+```toml
+extra_params = {
+  headers = {"X-Trace-Id" = "test-001"},
+  query = {version = "2024-01-01"},
+  body = {metadata = {source = "maibot"}},
+  enable_thinking = "false"
+}
+```
+
+会被转换为近似下面的请求附加参数：
+
+```python
+extra_headers = {"X-Trace-Id": "test-001"}
+extra_query = {"version": "2024-01-01"}
+extra_body = {
+    "metadata": {"source": "maibot"},
+    "enable_thinking": "false",
+}
+```
+
+所以常见写法：
+
+```toml
+extra_params = {enable_thinking = "false"}
+```
+
+最终会把 `enable_thinking` 作为请求体字段传给服务商，而不是发送下面这种结构：
+
+```json
+{
+  "extra_params": {
+    "enable_thinking": "false"
+  }
+}
+```
+
+#### `temperature` 和 `max_tokens`
+
+`temperature` 和 `max_tokens` 可以写在 `extra_params` 中作为模型级默认值，但更推荐使用模型配置里的同名独立字段：
+
+```toml
+temperature = 0.7
+max_tokens = 4096
+```
+
+这样配置意图更清楚，也能避免和服务商请求体中的同名字段混淆。
+
+生效优先级为：
+
+1. 调用方本次请求显式传入的值
+2. 当前模型配置里的独立字段，例如 `temperature`、`max_tokens`
+3. 当前模型 `extra_params` 中的同名字段
+4. 当前任务配置中的默认值
+
+#### Gemini 客户端
+
+当 `api_provider.client_type = "gemini"` 时，`extra_params` 不按 OpenAI 兼容客户端的 `headers/query/body` 规则处理，而是由 Gemini 客户端按自身支持的字段进行筛选和映射。
+
+常见用途包括：
+
+- 生成内容请求：映射到 `GenerateContentConfig` 支持的字段
+- 嵌入请求：映射到 `EmbedContentConfig` 支持的字段，例如 `task_type`、`output_dimensionality`
+- 思考参数：例如 `thinking_budget`、`include_thoughts`
+- 搜索能力：例如 `enable_google_search`
+- 音频请求：例如 `audio_mime_type`
+
+请根据对应服务商和模型的官方参数说明填写，MaiBot 只负责把这些模型级附加参数转交给相应客户端处理。
+
 
 ## 任务配置 [model_task_config]
 

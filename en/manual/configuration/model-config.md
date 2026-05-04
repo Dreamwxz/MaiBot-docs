@@ -181,6 +181,101 @@ price_in = 0.1                            # Normal input price
 price_out = 0.2                           # Output price
 ```
 
+### Extra Parameters `extra_params`
+
+`extra_params` is a model-level field for service-provider-specific API parameters. It is configured under a single `[[models]]` entry and only applies to that model.
+
+```toml
+[[models]]
+name = "deepseek-v4-pro-nonthink"
+model_identifier = "deepseek-v4-pro"
+api_provider = "aliyun"
+extra_params = {enable_thinking = "false"}
+```
+
+`extra_params` is an internal MaiBot configuration field. **It is not sent to the model provider as a top-level `extra_params` key**. Before the request is sent, the client converts it into the extra arguments supported by the corresponding SDK.
+
+#### OpenAI-Compatible Client
+
+When `api_provider.client_type = "openai"`, or when the default OpenAI-compatible client is used, `extra_params` is split using these rules:
+
+| Syntax | Actual Use |
+|------|----------|
+| `headers` | Sent as request headers |
+| `query` | Sent as URL query parameters |
+| `body` | Merged into the request body |
+| Other plain keys | Sent as extra request body fields |
+
+For example:
+
+```toml
+extra_params = {
+  headers = {"X-Trace-Id" = "test-001"},
+  query = {version = "2024-01-01"},
+  body = {metadata = {source = "maibot"}},
+  enable_thinking = "false"
+}
+```
+
+This is converted to request extras similar to:
+
+```python
+extra_headers = {"X-Trace-Id": "test-001"}
+extra_query = {"version": "2024-01-01"}
+extra_body = {
+    "metadata": {"source": "maibot"},
+    "enable_thinking": "false",
+}
+```
+
+So this common configuration:
+
+```toml
+extra_params = {enable_thinking = "false"}
+```
+
+sends `enable_thinking` as a request body field. It does not send this structure:
+
+```json
+{
+  "extra_params": {
+    "enable_thinking": "false"
+  }
+}
+```
+
+#### `temperature` and `max_tokens`
+
+`temperature` and `max_tokens` can be written in `extra_params` as model-level defaults, but the dedicated model fields are recommended:
+
+```toml
+temperature = 0.7
+max_tokens = 4096
+```
+
+This keeps the configuration clearer and avoids confusion with provider-specific request body fields that may use the same names.
+
+The priority order is:
+
+1. Values explicitly passed by the current request
+2. Dedicated fields in the current model config, such as `temperature` and `max_tokens`
+3. Same-name fields in the current model's `extra_params`
+4. Defaults from the current task config
+
+#### Gemini Client
+
+When `api_provider.client_type = "gemini"`, `extra_params` does not follow the OpenAI-compatible `headers/query/body` splitting rules. The Gemini client filters and maps fields according to what it supports.
+
+Common uses include:
+
+- Content generation: mapped to supported `GenerateContentConfig` fields
+- Embeddings: mapped to supported `EmbedContentConfig` fields, such as `task_type` and `output_dimensionality`
+- Thinking parameters, such as `thinking_budget` and `include_thoughts`
+- Search capability, such as `enable_google_search`
+- Audio requests, such as `audio_mime_type`
+
+Fill these fields according to the official parameter documentation of the provider and model. MaiBot only forwards these model-level extra parameters to the corresponding client.
+
 ## Task Configuration [model_task_config]
 
 You need to assign models to different tasks based on model characteristics to achieve the best performance and efficiency.

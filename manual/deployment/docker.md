@@ -77,6 +77,82 @@ Docker 会把重要数据保存在你电脑的这些位置：
 | NapCat 管理面板 | 6099 | NapCat 网页配置面板 |
 | 数据库工具 | 8120 | 查看机器人数据用的 |
 
+## 🔗 连接 NapCat
+
+`docker compose up -d` 只会把 MaiBot 和 NapCat 容器启动起来，还需要完成 NapCat 登录、WebSocket 和适配器配置，MaiBot 才能真正收到 QQ 消息。
+
+1. 打开 NapCat 管理面板：`http://localhost:6099`
+2. 登录 NapCat 管理面板。如果需要 token，请查看 `./docker-config/napcat/webui.json` 中的 `token` 字段。
+3. 在 NapCat 管理面板中登录 QQ 小号。
+4. 在 NapCat 的网络配置中启用 **正向 WebSocket** 或 **WebSocket 服务器**，监听端口一般用 `3001`。
+5. 在 MaiBot WebUI 的插件管理中启用 **NapCat 适配器**，或编辑宿主机上的 `./data/MaiMBot/plugins/MaiBot-Napcat-Adapter/config.toml`：
+
+```toml
+[plugin]
+enabled = true
+
+[napcat_server]
+host = "napcat"
+port = 3001
+token = ""
+```
+
+::: warning Docker 网络地址
+在 Docker Compose 里，MaiBot 容器访问 NapCat 容器时应该使用服务名 `napcat`。因此适配器配置里的 `napcat_server.host` 通常填 `napcat`，不是 `127.0.0.1`。
+`127.0.0.1` 在容器内只表示当前容器自己。
+:::
+
+### 群聊收不到消息
+
+NapCat 适配器默认启用聊天名单过滤，且群聊默认是白名单模式。如果群号没有写进白名单，群消息会被适配器直接丢弃，看起来就像 NapCat 已连接但 MaiBot 没反应。
+
+编辑 `./data/MaiMBot/plugins/MaiBot-Napcat-Adapter/config.toml` 的 `[chat]` 配置：
+
+```toml
+[chat]
+enable_chat_list_filter = true
+show_dropped_chat_list_messages = true
+group_list_type = "whitelist"
+group_list = ["你的QQ群号"]
+```
+
+如果只是本地测试，也可以临时关闭名单过滤：
+
+```toml
+[chat]
+enable_chat_list_filter = false
+```
+
+改完后重启核心容器：
+
+```bash
+docker compose restart core
+```
+
+::: tip WebUI 配置位置
+WebUI 的启用状态、监听地址和容器内端口现在都在 `./docker-config/mmc/bot_config.toml` 的 `[webui]` 配置段中设置，不再通过单独的 WebUI 配置文件或环境变量配置。
+:::
+
+默认情况下，`docker-compose.yml` 会把宿主机的 `18001` 端口映射到容器内的 `8001` 端口：
+
+```yaml
+ports:
+  - "18001:8001"
+```
+
+Docker 部署时，建议确认 `./docker-config/mmc/bot_config.toml` 中的 WebUI 配置如下：
+
+```toml
+[webui]
+enabled = true
+host = "0.0.0.0"
+port = 8001
+```
+
+- `host` 是 WebUI 在容器内绑定的地址。Docker 部署时建议使用 `0.0.0.0`，这样宿主机端口映射才能访问到 WebUI。
+- `port` 是 WebUI 在容器内监听的端口，需要和 `docker-compose.yml` 端口映射右侧保持一致。例如 `18001:8001` 中的 `8001`。
+- 如果你想修改浏览器访问端口，通常只需要改端口映射左侧。例如把 `18001:8001` 改成 `28001:8001` 后，通过 `http://localhost:28001` 访问。
+
 ## 📋 完整步骤（一步一步来）
 
 ```bash
@@ -89,7 +165,11 @@ docker compose up -d
 
 # 3. 改配置（重要！）
 # 打开 ./docker-config/mmc/bot_config.toml 填 QQ 号
+# WebUI 配置也在 ./docker-config/mmc/bot_config.toml 的 [webui] 段
 # 打开 ./docker-config/mmc/model_config.toml 填 API 密钥
+# 打开 http://localhost:6099 登录 NapCat，并启用正向 WebSocket
+# 启用 NapCat 适配器，并把适配器的 napcat_server.host 设为 napcat
+# 群聊要把群号加入 NapCat 适配器的 group_list，或关闭聊天名单过滤
 
 # 4. 重启让配置生效
 docker compose restart core

@@ -65,12 +65,12 @@ git checkout plugin
 ### 第三步：配置 NapCat
 
 1. 打开 NapCat 的网页界面
-2. 找到 "反向 WebSocket" 设置
-3. 填上适配器的监听地址，具体请查看plugin文件夹下 MaiBot-Napcat-Adapter 的 config.toml 文件中写明的端口
+2. 找到 "正向 WebSocket" 或 "WebSocket 服务器" 设置
+3. 启用正向 WebSocket 服务器，监听端口需要和 `plugins/MaiBot-Napcat-Adapter/config.toml` 中 `napcat_server.port` 的配置一致
 
 具体配置方法请参考 [NapCat 官方文档](https://napneko.github.io/guide/boot/Shell)。
 
-反向 WebSocket 地址通常填 `ws://127.0.0.1:8095`，具体端口以适配器配置为准。
+正向 WebSocket 服务器默认端口通常为 `3001`。适配器会作为客户端连接到 NapCat，例如 `ws://127.0.0.1:3001`，具体地址和端口以适配器配置为准。
 
 ### 第四步：启动
 
@@ -106,7 +106,33 @@ token = ""            # NapCat 访问令牌（有则填写）
 
 > 💡 **验证是否启用**：启动 MaiBot 后，查看日志中是否出现 `插件 maibot-team.napcat-adapter ... 激活`，如果看到 `已在配置中禁用，跳过激活` 则说明未启用。
 
+#### 群聊白名单
+
+NapCat 适配器默认启用聊天名单过滤，群聊默认是白名单模式。没有写进 `group_list` 的群消息会被直接丢弃；如果你发现 NapCat 已经连接成功，但群里 @ 机器人没有反应，优先检查这里。
+
+```toml
+[chat]
+enable_chat_list_filter = true
+show_dropped_chat_list_messages = true
+group_list_type = "whitelist"
+group_list = ["你的QQ群号"]
+```
+
+测试阶段也可以临时关闭名单过滤：
+
+```toml
+[chat]
+enable_chat_list_filter = false
+```
+
 ## 独立模式使用指南 🔧
+
+::: warning 旧版方法
+独立版适配器是早期的接入方式，通常只建议在已有独立部署、兼容旧环境或有特殊网络需求时继续使用。新部署建议优先使用上方的插件版适配器，配置更少，也更便于维护。
+:::
+
+<details>
+<summary>展开查看独立版适配器配置方法</summary>
 
 如果你需要独立运行适配器，按以下步骤操作。
 
@@ -197,6 +223,8 @@ docker compose up -d
 # 终端 2：启动适配器 (进入适配器目录运行)
 # 终端 3：uv run python bot.py
 ```
+
+</details>
 
 ## 验证连接 ✅
 
