@@ -26,6 +26,7 @@ This document is organized according to `src/config/official_configs.py` and `sr
 | `[keyword_reaction]` | Keyword/regex triggered reactions |
 | `[response_post_process]` | Global response post-processing switch |
 | `[chinese_typo]` | Chinese typo generation |
+| `[log]` | Log configuration |
 | `[response_splitter]` | Response splitting |
 | `[telemetry]` | Telemetry switch |
 | `[debug]` | Debug display and tracking |
@@ -66,10 +67,10 @@ alias_names = ["XiaoMai", "MaiZi"]
 
 ```toml
 [personality]
-personality = "是一个大二在读女大学生，现在正在上网和群友聊天，有时有点攻击性，有时比较温柔"
+personality = "你是一个大二女大学生，现在正在上网和群友聊天。"
 reply_style = "请不要刻意突出自身学科背景。可以参考贴吧，知乎和微博的回复风格。"
 multiple_reply_style = []
-multiple_probability = 0.3
+multiple_probability = 0.2
 ```
 
 | Field | Type | Default | Description |
@@ -77,7 +78,7 @@ multiple_probability = 0.3
 | `personality` | `str` | See default config | Character setting, recommended within 100 Chinese characters |
 | `reply_style` | `str` | See default config | Default expression style, recommended 1-2 lines |
 | `multiple_reply_style` | `list[str]` | `[]` | Optional style list; can randomly replace `reply_style` when not empty |
-| `multiple_probability` | `float` | `0.3` | Probability of using `multiple_reply_style`, range `0.0-1.0` |
+| `multiple_probability` | `float` | `0.2` | Probability of using `multiple_reply_style`, range `0.0-1.0` |
 
 ## Visual [visual]
 
@@ -103,10 +104,13 @@ The image description prompt is managed by the Prompt template `prompts/<locale>
 ```toml
 [chat]
 talk_value = 1.0
+private_talk_value = 1.0
 mentioned_bot_reply = false
 inevitable_at_reply = true
+enable_at = true
 enable_reply_quote = true
-max_context_size = 30
+max_context_size = 40
+max_private_context_size = 40
 planner_interrupt_max_consecutive_count = 2
 group_chat_prompt = "..."
 private_chat_prompts = "..."
@@ -117,10 +121,13 @@ enable_talk_value_rules = true
 | Field | Type | Default | Description |
 |--------|------|--------|------|
 | `talk_value` | `float` | `1.0` | Chat frequency. Smaller means quieter, range `0-1` |
+| `private_talk_value` | `float` | `1.0` | Private chat frequency. Smaller means quieter, range `0-1` |
 | `mentioned_bot_reply` | `bool` | `false` | Whether to tend to reply when the bot name is mentioned in plain text |
 | `inevitable_at_reply` | `bool` | `true` | Whether to always reply when @mentioned |
+| `enable_at` | `bool` | `true` | Whether to allow using at mentions |
 | `enable_reply_quote` | `bool` | `true` | Whether to include quoted replies |
-| `max_context_size` | `int` | `30` | Number of context messages sent to the model |
+| `max_context_size` | `int` | `40` | Number of context messages sent to the model |
+| `max_private_context_size` | `int` | `40` | Private chat context length |
 | `planner_interrupt_max_consecutive_count` | `int` | `2` | Maximum consecutive planner interruptions by new messages. `0` disables interruption protection |
 | `group_chat_prompt` | `str` | See default config | General group chat instructions |
 | `private_chat_prompts` | `str` | See default config | General private chat instructions |
@@ -137,6 +144,13 @@ item_id = ""
 rule_type = "group"
 time = "00:00-08:59"
 value = 0.8
+
+[[chat.talk_value_rules]]
+platform = ""
+item_id = ""
+rule_type = "group"
+time = "09:00-18:59"
+value = 1.0
 ```
 
 | Field | Type | Description |
@@ -323,6 +337,45 @@ reaction = "reaction after trigger"
 | `tone_error_rate` | `float` | Tone error probability |
 | `word_replace_rate` | `float` | Whole-word replacement probability |
 
+### log
+
+`[log]` controls log output format, level, and file management.
+
+```toml
+[log]
+date_style = "m-d H:i:s"
+log_level_style = "lite"
+color_text = "full"
+log_level = "INFO"
+console_log_level = "INFO"
+file_log_level = "DEBUG"
+log_file_max_bytes = 5242880
+max_log_files = 30
+log_cleanup_days = 30
+llm_request_snapshot_limit = 128
+maisaka_prompt_preview_limit = 256
+maisaka_reply_effect_limit = 256
+suppress_libraries = ["faiss", "httpx", "urllib3", "asyncio", "websockets", "httpcore", "requests", "sqlalchemy", "openai", "uvicorn", "jieba"]
+library_log_levels = { aiohttp = "WARNING" }
+```
+
+| Field | Type | Default | Description |
+|--------|------|--------|------|
+| `date_style` | `str` | `"m-d H:i:s"` | Log date format |
+| `log_level_style` | `"lite" \| "compact" \| "full"` | `"lite"` | Log level display style |
+| `color_text` | `"none" \| "title" \| "full"` | `"full"` | Console log color mode |
+| `log_level` | `"DEBUG" \| "INFO" \| "WARNING" \| "ERROR" \| "CRITICAL"` | `"INFO"` | Global log level |
+| `console_log_level` | `"DEBUG" \| "INFO" \| "WARNING" \| "ERROR" \| "CRITICAL"` | `"INFO"` | Console log level |
+| `file_log_level` | `"DEBUG" \| "INFO" \| "WARNING" \| "ERROR" \| "CRITICAL"` | `"DEBUG"` | File log level |
+| `log_file_max_bytes` | `int` | `5242880` | Maximum bytes per log file, default 5MB |
+| `max_log_files` | `int` | `30` | Maximum number of main log files to keep |
+| `log_cleanup_days` | `int` | `30` | Main log file retention days |
+| `llm_request_snapshot_limit` | `int` | `128` | Maximum number of failed request snapshots to keep |
+| `maisaka_prompt_preview_limit` | `int` | `256` | Maximum number of Maisaka Prompt preview groups per session |
+| `maisaka_reply_effect_limit` | `int` | `256` | Maximum number of Maisaka reply effect records per session |
+| `suppress_libraries` | `list[str]` | 11 libraries | List of third-party libraries to completely suppress logs |
+| `library_log_levels` | `dict[str, str]` | `{"aiohttp": "WARNING"}` | Log levels for specific third-party libraries |
+
 ### response_splitter
 
 | Field | Type | Description |
@@ -351,6 +404,8 @@ reaction = "reaction after trigger"
 | `show_jargon_prompt` | `bool` | Whether to show jargon-related prompts |
 | `show_memory_prompt` | `bool` | Whether to show memory retrieval prompts |
 | `enable_reply_effect_tracking` | `bool` | Whether to enable reply effect score tracking |
+| `record_reply_request` | `bool` | `false` | Whether to record Replyer request body, disabled by default |
+| `enable_llm_cache_stats` | `bool` | `false` | Whether to record LLM prompt cache debug statistics, disabled by default |
 
 ## Message Service [maim_message]
 
@@ -359,7 +414,7 @@ reaction = "reaction after trigger"
 | Field | Type | Default | Description |
 |--------|------|--------|------|
 | `ws_server_host` | `str` | `127.0.0.1` | Legacy WebSocket server host |
-| `ws_server_port` | `int` | `8080` | Legacy WebSocket server port |
+| `ws_server_port` | `int` | `8000` | Legacy WebSocket server port |
 | `auth_token` | `list[str]` | `[]` | Legacy API auth tokens. Empty means no auth |
 | `enable_api_server` | `bool` | See default config | Whether to enable the additional new API Server |
 | `api_server_host` | `str` | See default config | New API Server host |
@@ -487,7 +542,7 @@ alias_names = ["XiaoMai"]
 [chat]
 talk_value = 0.7
 inevitable_at_reply = true
-max_context_size = 30
+max_context_size = 40
 
 [memory]
 global_memory = false
@@ -501,7 +556,7 @@ chat_summary_writeback_enabled = true
 ```toml
 [maim_message]
 ws_server_host = "127.0.0.1"
-ws_server_port = 8080
+ws_server_port = 8000
 auth_token = []
 ```
 

@@ -66,6 +66,7 @@ export default defineConfig({
                 { text: '配置概览', link: '/manual/configuration/' },
                 { text: 'Bot 配置', link: '/manual/configuration/bot-config' },
                 { text: '模型配置', link: '/manual/configuration/model-config' },
+                { text: '模型额外参数', link: '/manual/configuration/model-extra-params' },
               ]
             },
             {
@@ -206,6 +207,7 @@ export default defineConfig({
                 { text: 'Configuration Overview', link: '/en/manual/configuration/' },
                 { text: 'Bot Config', link: '/en/manual/configuration/bot-config' },
                 { text: 'Model Config', link: '/en/manual/configuration/model-config' },
+                { text: 'Model Extra Parameters', link: '/en/manual/configuration/model-extra-params' },
               ]
             },
             {

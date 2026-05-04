@@ -10,7 +10,7 @@ MaiBot has two main configuration files, both in the `config/` folder:
 
 | 📁 File | 📝 Purpose | 🔗 Details |
 |---------|------------|------------|
-| `bot_config.toml` | Basic information, personality, chat, memory, learning..... | [View Details](./bot-config.md) |
+| `bot_config.toml` | Basic information, personality, chat, memory, learning, log, knowledge base... | [View Details](./bot-config.md) |
 | `model_config.toml` | AI model settings, configures the LLM MaiMai uses | [View Details](./model-config.md) |
 
 ::: tip 💡 Quick Tip

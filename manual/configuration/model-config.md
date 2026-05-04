@@ -13,27 +13,29 @@ title: 模型配置
 ## 配置文件结构
 
 ```toml
-# 配置文件版本
 [inner]
 version = "1.14.0"
 
-# API 提供商列表（AI服务商）
 [[api_providers]]
 name = "deepseek"
 base_url = "https://api.deepseek.com/v1"
 api_key = "sk-xxxxxxxxxxxxxxxxxxxxxxxx"
+auth_type = "bearer"                    # bearer/header/query/none
 
-# 模型列表（具体用哪个AI）
 [[models]]
 name = "deepseek-chat"
 model_identifier = "deepseek-chat"
-api_provider = "deepseek"
+api_provider = "deepseek"               # 对应 api_providers 的 name
+visual = false
+price_in = 0.1
+price_out = 0.2
 
-# 任务分配（不同工作用不同AI）
 [model_task_config.replyer]
 model_list = ["deepseek-chat"]
 max_tokens = 1024
 temperature = 0.3
+slow_threshold = 15.0
+selection_strategy = "balance"          # balance/random/sequential
 ```
 
 ## API 提供商 [[api_providers]]
@@ -47,12 +49,13 @@ API 提供商代表提供LLM服务的对象
 | `name` | 服务商名字 | 自己取个名字，比如"deepseek"、"openai" |
 | `base_url` | API地址 | 服务商提供的url |
 | `api_key` | 密钥 | 注册后获得的密钥 |
+| `auth_type` | 鉴权方式 | `bearer`（默认）、`header`、`query`、`none` |
 
 ### 常见服务商配置示例
 
 ::: code-group
 
-```toml [DeepSeek]
+```toml [DeepSeek（bearer鉴权）]
 [[api_providers]]
 name = "deepseek"
 base_url = "https://api.deepseek.com/v1"
@@ -61,46 +64,42 @@ client_type = "openai"
 auth_type = "bearer"
 ```
 
-```toml [OpenAI]
+```toml [自定义Header鉴权]
 [[api_providers]]
-name = "openai"
-base_url = "https://api.openai.com/v1"
-api_key = "sk-你的密钥"
+name = "custom"
+base_url = "https://api.example.com/v1"
+api_key = "your-api-key"
 client_type = "openai"
-auth_type = "bearer"
+auth_type = "header"
+auth_header_name = "X-API-Key"
+auth_header_prefix = ""
 ```
 
-```toml [阿里百炼]
+```toml [Query参数鉴权]
 [[api_providers]]
-name = "aliyun"
-base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-api_key = "sk-你的密钥"
+name = "query_auth"
+base_url = "https://api.example.com/v1"
+api_key = "your-api-key"
 client_type = "openai"
-auth_type = "bearer"
-```
-
-```toml [字节火山]
-[[api_providers]]
-name = "volcengine"
-base_url = "https://ark.cn-beijing.volces.com/api/v3"
-api_key = "sk-你的密钥"
-client_type = "openai"
-auth_type = "bearer"
+auth_type = "query"
+auth_query_name = "key"
 ```
 
 :::
 
-### 高级配置（可选）
+| 服务商 | `base_url` | 备注 |
+|--------|-----------|------|
+| OpenAI | `https://api.openai.com/v1` | 可选填 `organization`、`project` |
+| 阿里百炼 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | auth_type 用 `bearer` |
+| 字节火山 | `https://ark.cn-beijing.volces.com/api/v3` | auth_type 用 `bearer` |
 
-| 🏷️ 配置项 | 💡 作用 | 📊 推荐值 |
-|-----------|--------|----------|
-| `timeout` | 超时时间 | `10` 秒 |
-| `max_retry` | 失败重试次数 | `2` 次 |
-| `retry_interval` | 重试间隔 | `10` 秒 |
+> 💡 大部分国内服务商都兼容 OpenAI 接口格式，`client_type = "openai"` + `auth_type = "bearer"` 即可。
+
+> 📖 高级鉴权、参数、运行时配置请参阅：[模型高级参数](./model-extra-params#api-提供商高级配置)
 
 ## 模型列表 [[models]]
 
-模型就是具体的LLM，比如GPT-5.4、Claude-4.6-opus、DeepSeek V4等。
+模型就是具体的LLM，比如GPT-5.4、DeepSeek V4等。
 
 ### 基础配置（必填）
 
@@ -111,20 +110,42 @@ auth_type = "bearer"
 | `api_provider` | 用哪个服务商 | 填上面api_providers（提供商）里的name |
 | `visual` | 是否启用视觉 | 只有多模态模型可以打开此选项 |
 
+### 计费配置（可选）
+
+| 🏷️ 配置项 | 💡 是什么 | 📝 怎么填 |
+|-----------|----------|----------|
+| `price_in` | 输入价格 | 元/百万token，默认`0.0` |
+| `price_out` | 输出价格 | 元/百万token，默认`0.0` |
+| `cache` | 启用缓存计费 | `false`（默认），开启后缓存命中用cache_price_in计费 |
+| `cache_price_in` | 缓存输入价格 | 元/百万token，默认`0.0` |
+
+> 📖 模型级覆盖和高级参数请参阅：[模型高级参数](./model-extra-params#模型高级参数)
+
+> 📖 **详细说明请参阅：[模型额外参数 (extra_params)](./model-extra-params)** — 包含思考模式配置、推理深度调整、自定义 HTTP 参数等完整指南。
+>
+
 ### 模型配置示例
 
 ```toml
 [[models]]
-name = "deepseek-chat"                    # 我叫它"deepseek-chat"
-model_identifier = "deepseek-chat"        # 服务商也这么叫
-api_provider = "deepseek"                 # 用deepseek这个服务商
-visual = false                            # 不能看图
+name = "deepseek-chat"
+model_identifier = "deepseek-chat"
+api_provider = "deepseek"
+visual = false
+price_in = 0.1
+price_out = 0.2
 
 [[models]]
-name = "qwen3.5-vl"                          # 视觉模型，能看图
-model_identifier = "qwen3.5-flash"
-api_provider = "aliyun"
-visual = true                             # ✅ 能看图
+name = "gpt-4-cache"                      # 带缓存计费 + 模型级参数覆盖
+model_identifier = "gpt-4"
+api_provider = "openai"
+visual = false
+temperature = 0.7                         # 模型级温度，覆盖任务配置
+max_tokens = 2048
+cache = true
+cache_price_in = 0.025
+price_in = 0.1
+price_out = 0.2
 ```
 
 
@@ -138,37 +159,30 @@ visual = true                             # ✅ 能看图
 |----------|----------|------------|------------|
 | `utils` | 工具类：表情包、学习分析 | 便宜实用的模型 | dsv4/qwen3.5-35A3B/gemini3.1-flash/gptmini |
 | `planner` | 规划器：决定行动逻辑，搜集信息，何时回复等 | 实用的模型（需要支持tool调用 | dsv4/qwen3.5-35A3B/gemini3.1|
-| `replyer` | 回复器：生成实际回复 | 质量好的模型 | dsv4(思考)/claude-4.6-opus/gemini3.1 |
+| `replyer` | 回复器：生成实际回复 | 质量好的模型 | dsv4(思考)/gemini3.1 |
 | `vlm` | 看图说话：理解图片 | 视觉模型 | qwen3.5-35A3B/gemini3.1-flash |
+| `voice` | 语音识别：语音转文字 | 语音模型 | whisper-1/qwen-audio |
 | `embedding` | 生成向量：用于记忆搜索 | 嵌入模型 | qwen3-embbeding |
 
 ### 任务配置示例
 
 ```toml
-# 工具类任务：用便宜实用的
-[model_task_config.utils]
+[model_task_config.utils]             # 工具类，用便宜实用的
 model_list = ["deepseek-chat"]
 max_tokens = 1024
 temperature = 0.3
+slow_threshold = 15.0
+selection_strategy = "balance"
 
-# 规划器：用实用的
-[model_task_config.planner]
+[model_task_config.replyer]           # 回复器，用好一点的模型
 model_list = ["deepseek-chat"]
 max_tokens = 1024
-temperature = 0.3
-
-# 回复器：用好一点的模型
-[model_task_config.replyer]
-model_list = ["deepseek-chat"]  # 或者gpt-4等更好的
-max_tokens = 1024
-temperature = 0.7
-
-# 看图：用视觉模型
-[model_task_config.vlm]
-model_list = ["qwen3.5-flash"]
-max_tokens = 1024
-temperature = 0.3
+temperature = 0.7                     # 回复可以调高温度，更有创意
+slow_threshold = 15.0
+selection_strategy = "balance"
 ```
+
+> 💡 `planner`、`vlm`、`voice` 配置结构完全相同，只需替换 `model_list` 中的模型名。例如 `vlm` 填视觉模型（如 `"qwen3.5-flash"`），`voice` 填语音模型（如 `"whisper-1"`）。
 
 ### 参数说明
 
@@ -177,54 +191,54 @@ temperature = 0.3
 | `max_tokens` | 最多输出多少字 | `1024` |
 | `temperature` | 创造性（0-2） | `0.3` 保守，`0.7` 有创意 |
 | `model_list` | 用哪些模型 | 可以写多个，自动切换 |
+| `slow_threshold` | 慢请求阈值（秒） | `15.0`，超过会输出警告日志 |
+| `selection_strategy` | 模型选择策略 | `balance`（默认）、`random`、`sequential` |
 
 ## 🎯 推荐配置（新手专用）
 
-### 方案1：单模型配置（最简单）
+下面是一个**单模型配置**，所有任务都用同一个模型，适合快速上手：
 
 ```toml
-# 只用DeepSeek，所有任务都用它
 [[api_providers]]
 name = "deepseek"
 base_url = "https://api.deepseek.com/v1"
 api_key = "sk-你的密钥"
+auth_type = "bearer"
 
 [[models]]
 name = "deepseek-chat"
 model_identifier = "deepseek-chat"
 api_provider = "deepseek"
+visual = false
 
 [model_task_config.utils]
 model_list = ["deepseek-chat"]
+max_tokens = 1024
+temperature = 0.3
+slow_threshold = 15.0
+selection_strategy = "balance"
 
 [model_task_config.planner]
 model_list = ["deepseek-chat"]
+max_tokens = 1024
+temperature = 0.3
+slow_threshold = 15.0
+selection_strategy = "balance"
 
 [model_task_config.replyer]
 model_list = ["deepseek-chat"]
+max_tokens = 1024
+temperature = 0.7                    # 回复任务可以调高温度，更有创意
+slow_threshold = 15.0
+selection_strategy = "balance"
+
+[model_task_config.voice]
+model_list = ["deepseek-chat"]
+max_tokens = 1024
+temperature = 0.3
+slow_threshold = 15.0
+selection_strategy = "balance"
 ```
 
-### 方案2：分工配置（性价比）
-
-```toml
-# 工具类用便宜的，回复用好的
-[[api_providers]]
-name = "deepseek"
-base_url = "https://api.deepseek.com/v1"
-api_key = "sk-你的密钥"
-
-[[models]]
-name = "deepseek-chat"
-model_identifier = "deepseek-chat"
-api_provider = "deepseek"
-
-[model_task_config.utils]
-model_list = ["deepseek-chat"]  # 工具类用便宜的
-
-[model_task_config.planner]
-model_list = ["deepseek-chat"]  # 规划也用便宜的
-
-[model_task_config.replyer]
-model_list = ["deepseek-chat"]  # 回复可以用好一点的（等你有更好的模型再换）
-```
+> 💡 **进阶用法**：等你有多个模型后，可以把不同的任务分配给不同模型。比如 `utils` 和 `planner` 用便宜模型，`replyer` 用质量好的模型。只需修改对应任务的 `model_list` 即可，配置结构完全相同。
 

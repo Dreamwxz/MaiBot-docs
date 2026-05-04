@@ -26,6 +26,7 @@ title: Bot 配置
 | `[keyword_reaction]` | 关键词/正则触发反应 |
 | `[response_post_process]` | 回复后处理总开关 |
 | `[chinese_typo]` | 中文错别字生成 |
+| `[log]` | 日志配置 |
 | `[response_splitter]` | 回复分割 |
 | `[telemetry]` | 遥测开关 |
 | `[debug]` | 调试显示和追踪 |
@@ -66,10 +67,10 @@ alias_names = ["小麦", "麦子"]
 
 ```toml
 [personality]
-personality = "是一个大二在读女大学生，现在正在上网和群友聊天，有时有点攻击性，有时比较温柔"
+personality = "你是一个大二女大学生，现在正在上网和群友聊天。"
 reply_style = "请不要刻意突出自身学科背景。可以参考贴吧，知乎和微博的回复风格。"
 multiple_reply_style = []
-multiple_probability = 0.3
+multiple_probability = 0.2
 ```
 
 | 配置项 | 类型 | 默认值 | 说明 |
@@ -77,7 +78,7 @@ multiple_probability = 0.3
 | `personality` | `str` | 见默认配置 | 人格设定，建议 100 字以内，描述身份和人格特质 |
 | `reply_style` | `str` | 见默认配置 | 默认表达风格，建议 1-2 行 |
 | `multiple_reply_style` | `list[str]` | `[]` | 可选表达风格列表，不为空时可随机替换 `reply_style` |
-| `multiple_probability` | `float` | `0.3` | 随机使用 `multiple_reply_style` 的概率，范围 `0.0-1.0` |
+| `multiple_probability` | `float` | `0.2` | 随机使用 `multiple_reply_style` 的概率，范围 `0.0-1.0` |
 
 ## 视觉 [visual]
 
@@ -103,10 +104,13 @@ replyer_mode = "auto"
 ```toml
 [chat]
 talk_value = 1.0
+private_talk_value = 1.0
 mentioned_bot_reply = false
 inevitable_at_reply = true
+enable_at = true
 enable_reply_quote = true
-max_context_size = 30
+max_context_size = 40
+max_private_context_size = 40
 planner_interrupt_max_consecutive_count = 2
 group_chat_prompt = "..."
 private_chat_prompts = "..."
@@ -117,10 +121,13 @@ enable_talk_value_rules = true
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
 | `talk_value` | `float` | `1.0` | 聊天频率，越小越沉默，范围 `0-1` |
+| `private_talk_value` | `float` | `1.0` | 私聊聊天频率，越小越沉默，范围 `0-1` |
 | `mentioned_bot_reply` | `bool` | `false` | 是否在普通文本提到机器人名字时倾向回复 |
 | `inevitable_at_reply` | `bool` | `true` | 是否在被 @ 时必回复 |
+| `enable_at` | `bool` | `true` | 是否允许使用 at 标记 |
 | `enable_reply_quote` | `bool` | `true` | 回复时是否附带引用回复 |
-| `max_context_size` | `int` | `30` | 发送给模型的上下文消息数量 |
+| `max_context_size` | `int` | `40` | 发送给模型的上下文消息数量 |
+| `max_private_context_size` | `int` | `40` | 私聊上下文长度 |
 | `planner_interrupt_max_consecutive_count` | `int` | `2` | Planner 连续被新消息打断的最大次数，`0` 表示不启用打断保护 |
 | `group_chat_prompt` | `str` | 见默认配置 | 群聊通用注意事项 |
 | `private_chat_prompts` | `str` | 见默认配置 | 私聊通用注意事项 |
@@ -137,6 +144,13 @@ item_id = ""
 rule_type = "group"
 time = "00:00-08:59"
 value = 0.8
+
+[[chat.talk_value_rules]]
+platform = ""
+item_id = ""
+rule_type = "group"
+time = "09:00-18:59"
+value = 1.0
 ```
 
 | 配置项 | 类型 | 说明 |
@@ -323,6 +337,45 @@ reaction = "触发后的反应"
 | `tone_error_rate` | `float` | 声调错误概率 |
 | `word_replace_rate` | `float` | 整词替换概率 |
 
+### log
+
+`[log]` 控制日志输出格式、级别和文件管理。
+
+```toml
+[log]
+date_style = "m-d H:i:s"
+log_level_style = "lite"
+color_text = "full"
+log_level = "INFO"
+console_log_level = "INFO"
+file_log_level = "DEBUG"
+log_file_max_bytes = 5242880
+max_log_files = 30
+log_cleanup_days = 30
+llm_request_snapshot_limit = 128
+maisaka_prompt_preview_limit = 256
+maisaka_reply_effect_limit = 256
+suppress_libraries = ["faiss", "httpx", "urllib3", "asyncio", "websockets", "httpcore", "requests", "sqlalchemy", "openai", "uvicorn", "jieba"]
+library_log_levels = { aiohttp = "WARNING" }
+```
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| `date_style` | `str` | `"m-d H:i:s"` | 日志日期格式 |
+| `log_level_style` | `"lite" \| "compact" \| "full"` | `"lite"` | 日志等级显示样式 |
+| `color_text` | `"none" \| "title" \| "full"` | `"full"` | 控制台日志颜色模式 |
+| `log_level` | `"DEBUG" \| "INFO" \| "WARNING" \| "ERROR" \| "CRITICAL"` | `"INFO"` | 全局日志级别 |
+| `console_log_level` | `"DEBUG" \| "INFO" \| "WARNING" \| "ERROR" \| "CRITICAL"` | `"INFO"` | 控制台日志级别 |
+| `file_log_level` | `"DEBUG" \| "INFO" \| "WARNING" \| "ERROR" \| "CRITICAL"` | `"DEBUG"` | 文件日志级别 |
+| `log_file_max_bytes` | `int` | `5242880` | 单个日志文件最大字节数，默认 5MB |
+| `max_log_files` | `int` | `30` | 最多保留的主日志文件数量 |
+| `log_cleanup_days` | `int` | `30` | 主日志文件保留天数 |
+| `llm_request_snapshot_limit` | `int` | `128` | 失败请求快照最多保留数量 |
+| `maisaka_prompt_preview_limit` | `int` | `256` | 每个会话最多保留的 Maisaka Prompt 预览组数 |
+| `maisaka_reply_effect_limit` | `int` | `256` | 每个会话最多保留的 Maisaka 回复效果记录数 |
+| `suppress_libraries` | `list[str]` | 11 个库 | 完全屏蔽日志的第三方库列表 |
+| `library_log_levels` | `dict[str, str]` | `{"aiohttp": "WARNING"}` | 特定第三方库的日志级别 |
+
 ### response_splitter
 
 | 配置项 | 类型 | 说明 |
@@ -351,6 +404,8 @@ reaction = "触发后的反应"
 | `show_jargon_prompt` | `bool` | 是否显示黑话相关提示词 |
 | `show_memory_prompt` | `bool` | 是否显示记忆检索相关 prompt |
 | `enable_reply_effect_tracking` | `bool` | 是否开启回复效果评分追踪 |
+| `record_reply_request` | `bool` | `false` | 是否记录 Replyer 请求体，默认关闭 |
+| `enable_llm_cache_stats` | `bool` | `false` | 是否记录 LLM prompt cache 调试统计，默认关闭 |
 
 ## 消息服务 [maim_message]
 
@@ -359,7 +414,7 @@ reaction = "触发后的反应"
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
 | `ws_server_host` | `str` | `127.0.0.1` | 旧版 WebSocket 服务器主机地址 |
-| `ws_server_port` | `int` | `8080` | 旧版 WebSocket 服务器端口 |
+| `ws_server_port` | `int` | `8000` | 旧版 WebSocket 服务器端口 |
 | `auth_token` | `list[str]` | `[]` | 旧版 API 验证令牌，为空则不启用验证 |
 | `enable_api_server` | `bool` | 见默认配置 | 是否启用额外新版 API Server |
 | `api_server_host` | `str` | 见默认配置 | 新版 API Server 主机地址 |
@@ -487,7 +542,7 @@ alias_names = ["小麦"]
 [chat]
 talk_value = 0.7
 inevitable_at_reply = true
-max_context_size = 30
+max_context_size = 40
 
 [memory]
 global_memory = false
@@ -501,7 +556,7 @@ chat_summary_writeback_enabled = true
 ```toml
 [maim_message]
 ws_server_host = "127.0.0.1"
-ws_server_port = 8080
+ws_server_port = 8000
 auth_token = []
 ```
 
