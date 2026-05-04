@@ -65,12 +65,12 @@ git checkout plugin
 ### 第三步：配置 NapCat
 
 1. 打开 NapCat 的网页界面
-2. 找到 "反向 WebSocket" 设置
-3. 填上适配器的监听地址，具体请查看plugin文件夹下 MaiBot-Napcat-Adapter 的 config.toml 文件中写明的端口
+2. 找到 "正向 WebSocket" 或 "WebSocket 服务器" 设置
+3. 启用正向 WebSocket 服务器，监听端口需要和 `plugins/MaiBot-Napcat-Adapter/config.toml` 中 `napcat_server.port` 的配置一致
 
 具体配置方法请参考 [NapCat 官方文档](https://napneko.github.io/guide/boot/Shell)。
 
-反向 WebSocket 地址通常填 `ws://127.0.0.1:8095`，具体端口以适配器配置为准。
+正向 WebSocket 服务器默认端口通常为 `3001`。适配器会作为客户端连接到 NapCat，例如 `ws://127.0.0.1:3001`，具体地址和端口以适配器配置为准。
 
 ### 第四步：启动
 
